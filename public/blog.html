@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog : </title>
+
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/blog.css">
+
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="link"><img src="img/logo.png" class="logo" alt=""></a>
+        <ul class="links-container">
+            <li class="link-item"><a href="/" class="link">Home</a></li>
+            <li class="link-item"><a href="/admin" class="link">Admin</a></li>
+        </ul>
+    </nav>
+    
+    <div class="banner"></div>
+
+    <div class="blog">
+        <h1 class="title"></h1>
+        <p class="published"><span>published at - </span></p>
+        <div class="article">
+            
+        </div>
+    </div>
+
+    <h1 class="sub-heading">Read more</h1>
+
+    <!-- blog section -->
+    <section class="blogs-section">
+        <!-- <div class="blog-card">
+            <img src="img/header.png" class="blog-image" alt="">
+            <h1 class="blog-title">Lorem ipsum dolor sit amet consectetur.</h1>
+            <p class="blog-overview">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt incidunt fugiat quos porro repellat harum. Adipisci tempora corporis rem cum.</p>
+            <a href="/" class="btn dark">read</a>
+        </div> -->
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+    <script>
+        let firebaseConfig = {
+            apiKey: "AIzaSyAce_5yhz-sggNemizHzXHdLFMr6vUB9hI",
+            authDomain: "blogging-site-4e017.firebaseapp.com",
+            projectId: "blogging-site-4e017",
+            storageBucket: "blogging-site-4e017.appspot.com",
+            messagingSenderId: "354208001294",
+            appId: "1:354208001294:web:d7dc91c4984b58faff3b5f",
+            measurementId: "G-RBTPRKCJ02"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig)
+        let db = firebase.firestore();
+
+        const blogSection = document.querySelector('.blogs-section');
+
+        db.collection("blog-post").get().then((blogs) => {
+            blogs.forEach(blog => {
+                if(blog.id != decodeURI(location.pathname.split("/").pop())){
+                    createBlog(blog);
+                }
+            })
+        })
+
+        const createBlog = (blog) => {
+            let data = blog.data();
+            blogSection.innerHTML += `
+            <div class="blog-card">
+                <img src="${data.bannerImage}" class="blog-image" alt="">
+                <h1 class="blog-title">${data.title.substring(0, 100) + '...'}</h1>
+                <p class="blog-overview">${data.article.substring(0, 200) + '...'}</p>
+                <a href="/${blog.id}" class="btn dark">read</a>
+            </div>
+            `;
+        }
+    </script>
+    <script src="js/blog.js"></script>
+    
+</body>
+</html>

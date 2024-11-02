@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Blog : Admin</title>
+      <link rel="stylesheet" href="css/admin.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+   </head>
+   <body>
+      <div class="content">
+         <div class="text">
+            Admin Only
+         </div>
+         <form action="/editor" method="POST">
+            <div class="field">
+               <input type="text" name="username" required autocomplete="on">
+               <span class="fas fa-user"></span>
+               <label>Username</label>
+            </div>
+            <div class="field">
+               <input type="password" name="password" required autocomplete="on">
+               <span class="fas fa-lock"></span>
+               <label>Password</label>
+            </div>
+            <button>Access</button>
+         </form>
+      </div>
+   </body>
+</html>

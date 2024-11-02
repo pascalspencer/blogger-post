@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog : Editor</title>
+
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/editor.css">
+
+</head>
+<body>
+
+    <div class="banner">
+        <input type="file" accept="image/*" id="banner-upload" hidden>
+        <label for="banner-upload" class="banner-upload-btn"><img src="img/upload.png" alt="upload banner"></label>
+    </div>
+    
+    <div class="blog">
+        <textarea type="text" class="title" placeholder="Blog title..."></textarea>
+        <textarea type="text" class="article" placeholder="Start writing here..."></textarea>
+    </div>
+
+    <div class="blog-options">
+        <button class="btn dark publish-btn">publish</button>
+        <input type="file" accept="image/*" id="image-upload" hidden>
+        <label for="image-upload" class="btn grey upload-btn">Upload Image</label>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+    <script>
+        let firebaseConfig = {
+            apiKey: "AIzaSyAce_5yhz-sggNemizHzXHdLFMr6vUB9hI",
+            authDomain: "blogging-site-4e017.firebaseapp.com",
+            projectId: "blogging-site-4e017",
+            storageBucket: "blogging-site-4e017.appspot.com",
+            messagingSenderId: "354208001294",
+            appId: "1:354208001294:web:d7dc91c4984b58faff3b5f",
+            measurementId: "G-RBTPRKCJ02"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig)
+        let db = firebase.firestore();
+
+        const blogSection = document.querySelector('.blogs-section');
+
+        db.collection("blog-post").get().then((blogs) => {
+            blogs.forEach(blog => {
+                if(blog.id != decodeURI(location.pathname.split("/").pop())){
+                    createBlog(blog);
+                }
+            })
+        })
+
+        const createBlog = (blog) => {
+            let data = blog.data();
+            blogSection.innerHTML += `
+            <div class="blog-card">
+                <img src="${data.bannerImage}" class="blog-image" alt="">
+                <h1 class="blog-title">${data.title.substring(0, 100) + '...'}</h1>
+                <p class="blog-overview">${data.article.substring(0, 200) + '...'}</p>
+                <a href="/${blog.id}" class="btn dark">read</a>
+            </div>
+            `;
+        }
+    </script>
+    <script src="js/editor.js"></script>
+
+</body>
+</html>
