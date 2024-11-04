@@ -61,15 +61,15 @@ app.post('/upload', async (req, res) => {
             contentType: file.mimetype,
             token
         });
-        
+
         // Fetch the image data from Vercel Blob
         const imageResponse = await fetch(url);
-        const imageBuffer = await imageResponse.buffer(); 
+        const imageBuffer = await imageResponse.arrayBuffer(); 
         
         // Set the response header to the appropriate MIME type 
         res.set('Content-Type', file.mimetype); 
         // Send the image data 
-        res.send(imageBuffer);
+        res.send (Buffer.from(imageBuffer));
 
     } catch (err) {
         console.error('Error uploading to Vercel Blob:', err);
