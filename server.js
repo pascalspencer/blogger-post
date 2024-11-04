@@ -4,14 +4,14 @@ const fileupload = require('express-fileupload');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const admin = require('firebase-admin');
-// const serviceAccount = require('./bloggingSiteKey.json'); // Your Firebase service account key
+const serviceAccount = require('./bloggingSiteKey.json'); // Your Firebase service account key
 
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     storageBucket: 'blogging-site-4e017.appspot.com'
-// });
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: 'blogging-site-4e017.appspot.com'
+});
 
-// const bucket = admin.storage().bucket();
+const bucket = admin.storage().bucket();
 
 
 
@@ -49,21 +49,34 @@ app.post('/upload', (req, res) => {
 
     let file = req.files.image;
     let date = new Date();
-    let imagename = date.getDate() + date.getTime() + file.name;
-    let filePath = 'public/uploads/' + imagename;
+    let filename = date.getDate() + date.getTime() + file.name;
 
-    if (!fs.existsSync('public/uploads')) {
-        fs.mkdirSync('public/uploads', { recursive: true });
-    }
-
-    file.mv(filePath, (err) => {
-        if (err) {
-            console.error('File upload error:', err);  // Log error for debugging
-            return res.status(500).json({ error: 'File upload failed' });
-        } else {
-            res.json({ path: `uploads/${imagename}` });
+    // Upload to Firebase Storage
+    const fileUpload = bucket.file(filename);
+    const stream = fileUpload.createWriteStream({
+        metadata: {
+            contentType: file.mimetype,
         }
     });
+
+    stream.on('error', (err) => {
+        console.error('Error uploading to Firebase:', err);
+        res.status(500).json({ error: 'Upload failed' });
+    });
+
+    stream.on('finish', async () => {
+        // Get the public URL of the uploaded file
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+
+        res.json({ path: publicUrl });
+    });
+
+    // Pipe the image to the stream
+    stream.end(file.data);
+});
+
+app.listen(3000, () => {
+    console.log('Server running on port 3000...');
 });
 
 app.get("/:blog", (req, res) => {
