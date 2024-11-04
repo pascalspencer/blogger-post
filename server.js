@@ -3,6 +3,7 @@ const path = require('path');
 const fileupload = require('express-fileupload');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const { put } = require('@vercel/blob');
 // const admin = require('firebase-admin');
 // const serviceAccount = require('./bloggingSiteKey.json'); // Your Firebase service account key
 
@@ -42,29 +43,29 @@ app.get('/admin', (req, res) => {
 })
 
 // upload link
-app.post('/upload', (req, res) => {
-    let file = req.files.image;
-    let date = new Date();
-    // image name
-    let imagename = date.getDate() + date.getTime() + file.name;
-    // image upload path
-    let path = 'public/uploads/' + imagename;
-
-    // Check if directory exists, and create it if not
-    if (!fs.existsSync('public/uploads')) {
-        fs.mkdirSync('public/uploads', { recursive: true });
+app.post('/upload', async (req, res) => {
+    if (!req.files || !req.files.image) {
+        return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // create upload
-    file.mv(path, (err, result) => {
-        if(err){
-            throw err;
-        } else{
-            // our image upload path
-            res.json(`uploads/${imagename}`)
-        }
-    })
-})
+    const file = req.files.image;
+    const date = new Date();
+    const imagename = `${date.getDate()}${date.getTime()}_${file.name}`;
+
+    try {
+        // Upload the file to Vercel Blob
+        const { url } = await put(imagename, file.data, {
+            access: 'public',  // Make the file publicly accessible
+            contentType: file.mimetype
+        });
+
+        // Return the uploaded file's URL
+        res.json({ url });
+    } catch (err) {
+        console.error('Error uploading to Vercel Blob:', err);
+        res.status(500).json({ error: 'Upload failed' });
+    }
+});
 
 app.listen(3000, () => {
     console.log('Server running on port 3000...');
