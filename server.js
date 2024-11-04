@@ -51,12 +51,15 @@ app.post('/upload', async (req, res) => {
     const file = req.files.image;
     const date = new Date();
     const imagename = `${date.getDate()}${date.getTime()}_${file.name}`;
+    
 
     try {
         // Upload the file to Vercel Blob
+        const token = "vercel_blob_rw_j20NfDpwhZDExEyV_wboCdgI7KYE19TiybG0wKMzdNoLiPd";
         const { url } = await put(imagename, file.data, {
             access: 'public',  // Make the file publicly accessible
-            contentType: file.mimetype
+            contentType: file.mimetype,
+            token
         });
 
         // Return the uploaded file's URL
