@@ -33,28 +33,28 @@ app.get('/admin', (req, res) => {
 
 // upload link
 app.post('/upload', (req, res) => {
+    if (!req.files || !req.files.image) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
     let file = req.files.image;
     let date = new Date();
-    // image name
     let imagename = date.getDate() + date.getTime() + file.name;
-    // image upload path
-    let path = 'public/uploads/' + imagename;
+    let filePath = 'public/uploads/' + imagename;
 
-    // Check if directory exists, and create it if not
     if (!fs.existsSync('public/uploads')) {
         fs.mkdirSync('public/uploads', { recursive: true });
     }
 
-    // create upload
-    file.mv(path, (err, result) => {
-        if(err){
-            throw err;
-        } else{
-            // our image upload path
-            res.json(`uploads/${imagename}`)
+    file.mv(filePath, (err) => {
+        if (err) {
+            console.error('File upload error:', err);  // Log error for debugging
+            return res.status(500).json({ error: 'File upload failed' });
+        } else {
+            res.json({ path: `uploads/${imagename}` });
         }
-    })
-})
+    });
+});
 
 app.get("/:blog", (req, res) => {
     res.sendFile(path.join(initial_path, "blog.html"));

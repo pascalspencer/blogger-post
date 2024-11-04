@@ -19,24 +19,36 @@ uploadInput.addEventListener('change', () => {
 
 const uploadImage = (uploadFile, uploadType) => {
     const [file] = uploadFile.files;
-    if(file && file.type.includes("image")){
+    if(file && file.type.includes("image")) {
         const formdata = new FormData();
         formdata.append('image', file);
 
         fetch('/upload', {
-            method: 'post',
+            method: 'POST',
             body: formdata
-        }).then(res => res.json())
+        })
+        .then(response => {
+            // Check if response is OK (status 200-299)
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();  // Try to parse the response as JSON
+        })
         .then(data => {
-            if(uploadType == "image"){
-                addImage(data, file.name);
-            } else{
-                bannerPath = `${location.origin}/${data}`;
+            if (uploadType === "image") {
+                addImage(data.path, file.name);  // Assuming `data.path` contains the image path
+            } else {
+                bannerPath = `${location.origin}/${data.path}`;
                 banner.style.backgroundImage = `url("${bannerPath}")`;
             }
         })
-    } else{
-        alert("upload Image only");
+        .catch(error => {
+            // Handle errors during fetch or JSON parsing
+            console.error('Error during image upload:', error);
+            alert("Failed to upload image. Please try again.");
+        });
+    } else {
+        alert("Please upload an image file.");
     }
 }
 
