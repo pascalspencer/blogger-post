@@ -3,6 +3,16 @@ const path = require('path');
 const fileupload = require('express-fileupload');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const admin = require('firebase-admin');
+const serviceAccount = require('./bloggingSiteKey.json'); // Your Firebase service account key
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: 'blogging-site-4e017.appspot.com'
+});
+
+// const bucket = admin.storage().bucket();
+
 
 
 let initial_path = path.join(__dirname, "public");
