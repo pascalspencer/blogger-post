@@ -19,34 +19,41 @@ uploadInput.addEventListener('change', () => {
 
 const uploadImage = (uploadFile, uploadType) => {
     const [file] = uploadFile.files;
-    if(file && file.type.includes("image")) {
+    if (file && file.type.includes("image")) {
         const formdata = new FormData();
         formdata.append('image', file);
 
-        fetch('/upload', {
-            method: 'POST',
-            body: formdata
-        })
-        .then(response => {
-            // Check if response is OK (status 200-299)
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
-            }
-            return response.json();  // Try to parse the response as JSON
-        })
-        .then(data => {
-            if (uploadType === "image") {
-                addImage(data.path, file.name);  // Assuming `data.path` contains the image path
-            } else {
-                bannerPath = `${location.origin}/${data.path}`;
-                banner.style.backgroundImage = `url("${bannerPath}")`;
-            }
-        })
-        .catch(error => {
-            // Handle errors during fetch or JSON parsing
-            console.error('Error during image upload:', error);
-            alert("Failed to upload image. Please try again.");
-        });
+        // First, check if the backend is ready
+        fetch('/health-check')  // Replace with an actual health-check route in your backend
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Health check failed: ${response.status}`);
+                }
+                // Proceed with the file upload once backend is healthy
+                return fetch('/upload', {
+                    method: 'POST',
+                    body: formdata
+                });
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                return response.json();  // Parse the response as JSON
+            })
+            .then(data => {
+                if (uploadType === "image") {
+                    addImage(data.url, file.name);  // Assuming `data.url` contains the image URL
+                } else {
+                    bannerPath = `${location.origin}/${data.url}`;
+                    banner.style.backgroundImage = `url("${bannerPath}")`;
+                }
+            })
+            .catch(error => {
+                // Handle errors during health-check, fetch, or JSON parsing
+                console.error('Error during image upload:', error);
+                alert("Failed to upload image. Please try again.");
+            });
     } else {
         alert("Please upload an image file.");
     }

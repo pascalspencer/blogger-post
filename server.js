@@ -70,6 +70,11 @@ app.post('/upload', async (req, res) => {
     }
 });
 
+app.get('/health-check', (req, res) => {
+    res.status(200).json({ message: 'Backend is ready' });
+});
+
+
 app.listen(3000, () => {
     console.log('Server running on port 3000...');
 });
