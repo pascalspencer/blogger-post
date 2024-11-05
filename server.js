@@ -62,14 +62,17 @@ app.post('/upload', async (req, res) => {
             token
         });
 
-        // Fetch the image data from Vercel Blob
-        const imageResponse = await fetch(url);
-        const imageBuffer = await imageResponse.arrayBuffer(); 
+        // // Fetch the image data from Vercel Blob
+        // const imageResponse = await fetch(url);
+        // const imageBuffer = await imageResponse.arrayBuffer(); 
         
-        // Set the response header to the appropriate MIME type 
-        res.set('Content-Type', file.mimetype); 
-        // Send the image data 
-        res.send (Buffer.from(imageBuffer));
+        // // Set the response header to the appropriate MIME type 
+        // res.set('Content-Type', file.mimetype); 
+        // // Send the image data 
+        // res.send (Buffer.from(imageBuffer));
+        
+        // Return the image URL as a JSON response
+        res.status(200).json({ imageUrl: url })
 
     } catch (err) {
         console.error('Error uploading to Vercel Blob:', err);
